@@ -1,12 +1,14 @@
-import Vue from 'vue'
-import options from '@/config'
-import App from '@/components/App.vue'
-import '@/main.css'
-// Uncomment this when building a PWA:
-// import '@/registerServiceWorker'
+import './assets/main.css'
 
-new Vue({
-    ...options(Vue),
-    el: '#app',
-    render: h => h(App),
-})
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+
+import App from './App.vue'
+import router from './router'
+
+const app = createApp(App)
+
+app.use(createPinia())
+app.use(router)
+
+app.mount('#app')
