@@ -12,6 +12,13 @@
 ### run the server
 `mvn spring-boot:run`
 
+### command for docker
+#### for windows
+`docker run -it --name maven -p 8080:8080 -v .:/app -w /app maven bash`
+
+#### for mac/linux
+`docker run -it --name maven -p 8080:8080 -v ${PWD}:/app -w /app maven bash`
+
 ## Client
 
 ### install all dependencies
@@ -19,3 +26,10 @@
 
 ### run the server
 `npm run serve`
+
+### command for docker
+#### for windows
+`docker run -it --name node -p 8081:8081 -v .:/app -w /app node bash`
+
+#### for mac/linux
+`docker run -it --name node -p 8081:8081 -v ${PWD}:/app -w /app node bash`
