@@ -19,6 +19,10 @@
 #### for mac/linux
 `docker run -it --name maven -p 8080:8080 -v ${PWD}:/app -w /app maven bash`
 
+### command to start and run
+`docker start maven`
+`docker exec -it maven bash`
+
 ## Client
 
 ### install all dependencies
@@ -33,3 +37,7 @@
 
 #### for mac/linux
 `docker run -it --name node -p 8081:8081 -v ${PWD}:/app -w /app node bash`
+
+### command to start and run
+`docker start node`
+`docker exec -it node bash`
