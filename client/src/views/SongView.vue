@@ -1,6 +1,125 @@
 <template>
   <div>
-    <h1 class="text-4xl my-3 ml-3">Song List</h1>
+    <div class="flex flex-row justify-center md:justify-between my-3 mx-6">
+      <h1 class="text-4xl">Song List</h1>
+      <button class="btn btn-primary" onclick="add.showModal()">Add Song</button>
+    </div>
+
+    <!--Edit Song Modal-->
+    <dialog id="edit" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">Edit the Song!</h3>
+      <div class="modal-action">
+        <form method="dialog" class="flex flex-col w-full gap-2">
+          <div class="flex flex-col justify-center mb-8">
+            <div class="flex flex-row justify-between w-full">
+              <div>
+                <label for="title" class="label">Title</label>
+                <input
+                  v-model.text="useSongStore().editSong.title"
+                  type="text"
+                  id="title"
+                  class="input input-bordered"
+                />
+              </div>
+              <div>
+                <label for="artist" class="label">Artist</label>
+                <input
+                  v-model.text="useSongStore().editSong.artist"
+                  type="text"
+                  id="artist"
+                  class="input input-bordered"
+                />
+              </div>
+            </div>
+            <div class="flex flex-row justify-between w-full">
+              <div>
+                <label for="genre" class="label">Genre</label>
+                <input
+                  v-model.text="useSongStore().editSong.genre"
+                  type="text"
+                  id="genre"
+                  class="input input-bordered"
+                />
+              </div>
+              <div>
+                <label for="duration" class="label">Duration</label>
+                <input
+                  v-model.number="useSongStore().editSong.duration"
+                  type="text"
+                  id="duration"
+                  class="input input-bordered"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-row justify-evenly w-full">
+            <button class="btn btn-secondary">Close</button>
+            <button class="btn btn-primary" @click="updateSong(useSongStore().editSong)">Update Song</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </dialog>
+
+    <!--Add Song Modal-->
+    <dialog id="add" class="modal">
+      <div class="modal-box">
+        <h3 class="font-bold text-lg">Add a new Song!</h3>
+        <div class="modal-action">
+          <form method="dialog" class="flex flex-col w-full gap-2">
+            <div class="flex flex-col justify-center mb-8">
+              <div class="flex flex-row justify-between w-full">
+                <div>
+                  <label for="title" class="label">Title</label>
+                  <input
+                    v-model.text="newSong.title"
+                    type="text"
+                    id="title"
+                    class="input input-bordered"
+                  />
+                </div>
+                <div>
+                  <label for="artist" class="label">Artist</label>
+                  <input
+                    v-model.text="newSong.artist"
+                    type="text"
+                    id="artist"
+                    class="input input-bordered"
+                  />
+                </div>
+              </div>
+              <div class="flex flex-row justify-between w-full">
+                <div>
+                  <label for="genre" class="label">Genre</label>
+                  <input
+                    v-model.text="newSong.genre"
+                    type="text"
+                    id="genre"
+                    class="input input-bordered"
+                  />
+                </div>
+                <div>
+                  <label for="duration" class="label">Duration</label>
+                  <input
+                    v-model.number="newSong.duration"
+                    type="text"
+                    id="duration"
+                    class="input input-bordered"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-row justify-evenly w-full">
+              <button class="btn btn-secondary">Close</button>
+              <button class="btn btn-primary" @click="addSong">Add Song</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </dialog>
+
+    <!--Searchbar for Songs-->
     <div class="flex flex-col justify-center mb-3">
       <input
         type="text"
@@ -9,10 +128,13 @@
         class="input input-bordered max-w-md mx-auto"
       />
     </div>
+    <!--Songs-->
     <div class="flex flex-col justify-center gap-2 max-w-xl mx-auto">
-      <Song v-for="song in songs" :song="song" />
+      <Song v-for="(song, index) in songs" :song="song" :id="index"/>
     </div>
     <ErrorBadge v-if="page.error" :errorMessage="page.errorMessage" />
+
+    <!--Pagiation Buttons-->
     <div class="join flex flex-row justify-center mt-3">
       <button class="join-item btn" @click="firstPage" :disabled="page.currentPage == 0">
         First Page
@@ -33,6 +155,11 @@
 import Song from '@/components/Song.vue'
 import ErrorBadge from '../components/ErrorBadge.vue'
 import { ref, onMounted, reactive } from 'vue'
+import { useToast } from 'vue-toastification'
+import { useSongStore } from '../stores/songStore'
+
+const toast = useToast()
+
 const page = reactive({
   error: false,
   errorMessage: '',
@@ -42,6 +169,54 @@ const page = reactive({
   search: ''
 })
 const songs = ref([])
+
+const newSong = ref({
+  title: '',
+  artist: '',
+  genre: '',
+  duration: ''
+})
+
+function updateSong (song){
+  try {
+    // Update song
+    const updatedSong = fetch('http://localhost:8080/api/songs/' + song.id, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(song)
+    })
+    toast.success('Song updated successfully!')
+  } catch (e) {
+    console.log(e)
+    toast.error('Song could not be updated!')
+  }
+
+}
+
+function addSong () {
+  try {
+    // Create new song
+    const addedSong = fetch('http://localhost:8080/api/songs', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(newSong.value)
+    })
+    // clear form
+    newSong.value = {
+      title: '',
+      artist: '',
+      genre: '',
+      duration: ''
+    }
+    toast.success('Song added successfully!')
+  } catch (e) {
+    toast.error('Song could not be added!')
+  }
+}
 function searchSong () {
   if (page.search != '') {
     fetchSearch()
@@ -79,8 +254,11 @@ async function fetchSearch () {
     }
     page.error = false
   } catch (error) {
+    /*
     page.error = true
     page.errorMessage = 'No songs can be found. Please adjust your search.'
+    */
+    toast.error('No songs can be found. Please adjust your search.')
     songs.value = []
   }
 }
@@ -108,9 +286,14 @@ function lastPage () {
 }
 
 async function fetchPage () {
-  const response = await fetch('http://localhost:8080/api/songs?size=5&page=' + page.currentPage)
-  songs.value = await response.json()
-  songs.value = songs.value._embedded.songs
+  try {
+    const response = await fetch('http://localhost:8080/api/songs?size=5&page=' + page.currentPage)
+    songs.value = await response.json()
+    songs.value = songs.value._embedded.songs
+    toast.success('Songs loaded successfully!')
+  } catch (error) {
+    toast.error('Songs konnten nicht geladen werden')
+  }
 }
 
 onMounted(async () => {
@@ -121,9 +304,7 @@ onMounted(async () => {
     songs.value = songs.value._embedded.songs
     page.error = false
   } catch (error) {
-    console.log(error)
-    page.error = true
-    page.errorMessage = 'Songs konnten nicht geladen werden'
+    toast.error('Songs konnten nicht geladen werden')
   }
   page.loading = false
 })
