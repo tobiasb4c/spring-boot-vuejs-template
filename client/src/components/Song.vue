@@ -2,7 +2,7 @@
   <!--Edit Modal-->
 
   <!--Song Card-->
-  <div class="collapse collapse-arrow bg-base-200">
+  <div class="collapse collapse-arrow bg-base-200" v-show="!isDeleted">
     <input type="radio" name="my-accordion-2" checked="checked" />
     <div class="collapse-title text-xl font-medium">{{ song.title }} from {{ song.artist }}</div>
     <div class="collapse-content flex flex-row justify-start text-lg gap-4">
@@ -11,6 +11,13 @@
       <button class="btn btn-primary" onclick="edit.showModal()" @click="editSongToStore">
         Edit Song
       </button>
+      <button
+        class="btn btn-error"
+        @click="deleteSong"
+      >
+        Delete Song
+      </button>
+      <p>{{}}</p>
 
       <!--Modal-->
       <!--Edit Song Modal-->
@@ -30,6 +37,8 @@ const props = defineProps({
   id: Number
 })
 
+let isDeleted = ref(false)
+
 const toEditSong = ref({
   id: props.id,
   title: props.song.title,
@@ -40,6 +49,18 @@ const toEditSong = ref({
 
 function editSongToStore () {
   useSongStore().setEditSong(toEditSong.value)
+}
+
+function deleteSong () {
+  try {
+    fetch(props.song._links.song.href, {
+      method: 'DELETE'
+    })
+    toast.success('Song deleted successfully')
+    isDeleted.value = true
+  } catch (error) {
+    toast.error('Error deleting song')
+  }
 }
 
 function secondsToMinutes (seconds) {
