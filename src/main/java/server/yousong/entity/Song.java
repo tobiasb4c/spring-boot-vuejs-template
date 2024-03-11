@@ -6,7 +6,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Column;
 
+// Add missing import statement
 @Entity
 @Getter
 @Setter
@@ -20,6 +22,6 @@ public class Song {
     private String title;
     private String artist;
     private String genre;
-    // Lenght in seconds
+    // Length in seconds
     private int duration;
 }

@@ -168,6 +168,7 @@ const page = reactive({
   num: 0,
   search: ''
 })
+
 const songs = ref([])
 
 const newSong = ref({
@@ -177,26 +178,30 @@ const newSong = ref({
   duration: ''
 })
 
-function updateSong (song){
+async function updateSong(song) {
   try {
     // Update song
-    const updatedSong = fetch('http://localhost:8080/api/songs/' + song.id, {
+    const updatedSong = await fetch(song.link, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(song)
+    }).then(() => {
+      fetchPage()
+      toast.success('Song updated successfully!')
     })
-    toast.success('Song updated successfully!')
+
   } catch (e) {
     console.log(e)
     toast.error('Song could not be updated!')
   }
-
 }
 
 function addSong () {
   try {
+    console.log('Add')
+    console.log(newSong.value)
     // Create new song
     const addedSong = fetch('http://localhost:8080/api/songs', {
       method: 'POST',
@@ -204,6 +209,9 @@ function addSong () {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(newSong.value)
+    }).then(() => {
+      fetchPage()
+      toast.success('Song added successfully!')
     })
     // clear form
     newSong.value = {
@@ -212,7 +220,6 @@ function addSong () {
       genre: '',
       duration: ''
     }
-    toast.success('Song added successfully!')
   } catch (e) {
     toast.error('Song could not be added!')
   }

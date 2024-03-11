@@ -44,7 +44,8 @@ const toEditSong = ref({
   title: props.song.title,
   artist: props.song.artist,
   genre: props.song.genre,
-  duration: props.song.duration
+  duration: props.song.duration,
+  link: props.song._links.song.href
 })
 
 function editSongToStore () {
